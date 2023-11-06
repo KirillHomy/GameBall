@@ -12,9 +12,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        APIService.shared.fetchLinks { result in
+            switch result {
+                case .success(let links):
+                    print("Winner URL: \(links.winner)")
+                    print("Loser URL: \(links.loser)")
+                    // Сохраняем ссылки в UserDefaults
+                    let encoder = JSONEncoder()
+                    if let encoded = try? encoder.encode(links) {
+                        UserDefaults.standard.set(encoded, forKey: Constants.UserDefaults.links)
+                    }
+                case .failure(let error):
+                    print("Error fetching links: \(error)")
+            }
+        }
         return true
     }
 
@@ -34,7 +48,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
-
-
 }
-
